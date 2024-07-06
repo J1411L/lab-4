@@ -6,7 +6,9 @@
 #include <QPoint>
 #include <QPainter>
 #include <QColor>
+#include <QPixmap>  // Добавляем этот include
 
+// графическое оконное приложение
 // Класс GameLogic, наследующий от QWidget, представляет логику игры "Змейка"
 class GameLogic : public QWidget{
 public:
@@ -48,6 +50,10 @@ private:
 
     // Координаты яблока
     QPoint m_apple;
+
+    // Переменные для хранения изображений
+    QPixmap backgroundPixmap;  // Объявление переменной для фонового изображения
+    QPixmap applePixmap;       // Переменная для изображения яблока
 
     // Приватные функции, реализующие логику игры
     void _INIT_GAME(); // Инициализация игры

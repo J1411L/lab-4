@@ -6,17 +6,26 @@
 #include <cstdlib>
 
 GameLogic::GameLogic() {
-    // Устанавливаем размер игрового окна в соответствии с размером поля и размером каждого сегмента змейки
-    // SNAKE_WIDTH и SNAKE_HEIGHT - константы, определяющие размер каждого сегмента змейки
-    // FIELD_WIDTH и FIELD_HEIGHT - константы, определяющие размер игрового поля
+    // Устанавливаем размер игрового окна
     this->resize(SNAKE_WIDTH*FIELD_WIDTH, SNAKE_HEIGHT*FIELD_HEIGHT);
-
-    // Устанавливаем заголовок окна "Змейка"
     this->setWindowTitle("Змейка");
 
-    // Вызываем функцию _INIT_GAME() для инициализации игры
+    // Загрузка фонового изображения
+    backgroundPixmap.load("grass2.png");
+    if (backgroundPixmap.isNull()) {
+        qDebug() << "Ошибка: не удалось загрузить изображение background.png";
+    }
+
+    // Загрузка изображения яблока
+    applePixmap.load("apple.png");
+    if (applePixmap.isNull()) {
+        qDebug() << "Ошибка: не удалось загрузить изображение apple.png";
+    }
+
+    // Инициализация игры
     _INIT_GAME();
 }
+
 
 void GameLogic::timerEvent(QTimerEvent * e)
 {
@@ -108,42 +117,44 @@ void GameLogic::_INIT_GAME()
 
 void GameLogic::_DRAWING()
 {
-    // Создаем объект QPainter для рисования на виджете
     QPainter painter(this);
 
     // Проверяем, что игра началась
-    if(this->m_inGame){
-        // Устанавливаем кисть для рисования яблока
-        painter.setBrush(this->m_colors[0]);
-        // Рисуем яблоко на игровом поле
-        painter.drawEllipse(m_apple.x() * SNAKE_WIDTH, m_apple.y() * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
+    if (this->m_inGame) {
+        // Рисуем фоновое изображение
+        if (!backgroundPixmap.isNull()) {
+            painter.drawPixmap(0, 0, width(), height(), backgroundPixmap);
+        }
+
+        // Рисуем изображение яблока
+        if (!applePixmap.isNull()) {
+            painter.drawPixmap(m_apple.x() * SNAKE_WIDTH, m_apple.y() * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT, applePixmap);
+        } else {
+            // Если изображение яблока не загружено, рисуем красный круг
+            painter.setBrush(this->m_colors[0]);
+            painter.drawEllipse(m_apple.x() * SNAKE_WIDTH, m_apple.y() * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
+        }
 
         // Получаем длину змейки
         size_t len = m_dots.size();
         // Проходим по всем сегментам змейки
-        for(int i = 0; i<len;i++){
-            // Если это голова змейки
-            if(i==0){
-                // Устанавливаем кисть для рисования головы змейки
-                painter.setBrush(this->m_colors[1]);
+        for (int i = 0; i < len; i++) {
+            if (i == 0) {
                 // Рисуем голову змейки
+                painter.setBrush(this->m_colors[1]);
                 painter.drawEllipse(m_dots[i].x() * SNAKE_WIDTH, m_dots[i].y() * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
-            }
-            // Если это не голова змейки
-            else{
-                // Устанавливаем кисть для рисования тела змейки
-                painter.setBrush(this->m_colors[2]);
+            } else {
                 // Рисуем тело змейки
+                painter.setBrush(this->m_colors[2]);
                 painter.drawEllipse(m_dots[i].x() * SNAKE_WIDTH, m_dots[i].y() * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
             }
         }
-    }
-    // Если игра закончилась
-    else{
+    } else {
         // Вызываем функцию, которая обрабатывает окончание игры
         _GAME_OVER();
     }
 }
+
 
 void GameLogic::_DRAW_APPLE()
 {
